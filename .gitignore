@@ -328,3 +328,4 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/tweeter-data-crawl/tweeter-data-crawl/Data/appsettings.json
