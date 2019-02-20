@@ -97,9 +97,12 @@ namespace tweeter_data_crawl
                 }
             }
 
-            query = $"?q=to:{SETTINGS.MainUserName}&tweet_mode=extended&max_id={maxTwitterIdRetrieved}&count=100";
+            query = $"?q=to:{SETTINGS.MainUserName}&tweet_mode=extended&count=100";
             if (lastTwitterIdSaved != 0)
                 query += $"&since_id={lastTwitterIdSaved}";
+
+            if (maxTwitterIdRetrieved.HasValue && maxTwitterIdRetrieved != lastTwitterIdSaved)
+                query += $"&max_id={maxTwitterIdRetrieved}";
 
             var repliedTweets = QueryTweets(query);
 
