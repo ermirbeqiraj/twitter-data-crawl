@@ -13,21 +13,14 @@ namespace tweeter_data_crawl
     {
         static AppSettings SETTINGS;
         static readonly string CONFIG_FILE_PATH = Path.Combine(Environment.CurrentDirectory, "Data", "appsettings.json");
-        static readonly long MAIN_USER_ID = 273410176;
-
         static SearchService searchService;
 
         static void LoadConfigurations()
         {
             if (File.Exists(CONFIG_FILE_PATH))
-            {
-                var settingsString = File.ReadAllText(CONFIG_FILE_PATH);
-                SETTINGS = JsonConvert.DeserializeObject<AppSettings>(settingsString);
-            }
+                SETTINGS = JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText(CONFIG_FILE_PATH));
             else
-            {
                 throw new Exception("Application settings file couldn't be found");
-            }
         }
 
         static List<Status> QueryTweets(string query)
@@ -77,14 +70,14 @@ namespace tweeter_data_crawl
             var dbService = new DbService();
 
             // GET LAST SAVED-IN-DB STATUS UPDATE FOR MAIN USER
-            var lastTweetIdSaved = dbService.GetLastSavedTweetId(MAIN_USER_ID);
-            var maxTweetIdRetrieved = lastTweetIdSaved;
-            var newTweetIds = new List<long> { /*maxTweetIdRetrieved*/ };
+            var lastTwitterIdSaved = dbService.GetLastSavedTweetId(SETTINGS.MainUserId);
+            var maxTwitterIdRetrieved = lastTwitterIdSaved;
+            var newTweetIds = new List<long> { };
             // GET ALL STATUS UPDATES FOR SOME USER SINCE LAST REGISTERED STATUS UPDATE
             var query = $"?q=from:{SETTINGS.MainUserName}&tweet_mode=extended&count=100";
 
-            if (lastTweetIdSaved != 0)
-                query += $"&since_id={lastTweetIdSaved}";
+            if (lastTwitterIdSaved != 0)
+                query += $"&since_id={lastTwitterIdSaved}";
 
             var mainUserTweets = QueryTweets(query);
 
@@ -93,10 +86,10 @@ namespace tweeter_data_crawl
                 var mainUserParsedTweets = ConvertToEntity(mainUserTweets);
                 dbService.AddTweets(mainUserParsedTweets);
 
-                if (lastTweetIdSaved != 0)
+                if (lastTwitterIdSaved != 0)
                 {
                     newTweetIds.AddRange(mainUserParsedTweets.Select(x => x.Id).ToList());
-                    maxTweetIdRetrieved = newTweetIds.Max();
+                    maxTwitterIdRetrieved = newTweetIds.Max();
                 }
                 else
                 {
@@ -104,9 +97,9 @@ namespace tweeter_data_crawl
                 }
             }
 
-            query = $"?q=to:{SETTINGS.MainUserName}&tweet_mode=extended&max_id={maxTweetIdRetrieved}&count=100";
-            if (lastTweetIdSaved != 0)
-                query += $"&since_id={lastTweetIdSaved}";
+            query = $"?q=to:{SETTINGS.MainUserName}&tweet_mode=extended&max_id={maxTwitterIdRetrieved}&count=100";
+            if (lastTwitterIdSaved != 0)
+                query += $"&since_id={lastTwitterIdSaved}";
 
             var repliedTweets = QueryTweets(query);
 
