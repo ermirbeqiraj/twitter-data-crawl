@@ -1,4 +1,4 @@
-# tweeter-data-crawl
+# twitter-data-crawl
 
 This is a dotnet core console application that will be executed in a schedule.
 
