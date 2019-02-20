@@ -79,19 +79,37 @@ namespace tweeter_data_crawl
             // GET LAST SAVED-IN-DB STATUS UPDATE FOR MAIN USER
             var lastTweetIdSaved = dbService.GetLastSavedTweetId(MAIN_USER_ID);
             var maxTweetIdRetrieved = lastTweetIdSaved;
-            var newTweetIds = new List<long>();
+            var newTweetIds = new List<long> { /*maxTweetIdRetrieved*/ };
             // GET ALL STATUS UPDATES FOR SOME USER SINCE LAST REGISTERED STATUS UPDATE
-            var mainUserTweets = QueryTweets($"?q=from:{SETTINGS.MainUserName}&tweet_mode=extended&since_id={lastTweetIdSaved}&count=100");
+            var query = $"?q=from:{SETTINGS.MainUserName}&tweet_mode=extended&count=100";
+
+            if (lastTweetIdSaved != 0)
+                query += $"&since_id={lastTweetIdSaved}";
+
+            var mainUserTweets = QueryTweets(query);
+
             if (mainUserTweets.Count > 0)
             {
                 var mainUserParsedTweets = ConvertToEntity(mainUserTweets);
                 dbService.AddTweets(mainUserParsedTweets);
-                newTweetIds = mainUserParsedTweets.Select(x => x.Id).ToList();
-                maxTweetIdRetrieved = newTweetIds.Max();
+
+                if (lastTweetIdSaved != 0)
+                {
+                    newTweetIds.AddRange(mainUserParsedTweets.Select(x => x.Id).ToList());
+                    maxTweetIdRetrieved = newTweetIds.Max();
+                }
+                else
+                {
+                    newTweetIds = mainUserParsedTweets.Select(x => x.Id).ToList();
+                }
             }
-            
-            var repliedTweets = QueryTweets($"?q=to:{SETTINGS.MainUserName}&tweet_mode=extended&since_id={lastTweetIdSaved}&max_id={maxTweetIdRetrieved}&count=100");
-            
+
+            query = $"?q=to:{SETTINGS.MainUserName}&tweet_mode=extended&max_id={maxTweetIdRetrieved}&count=100";
+            if (lastTweetIdSaved != 0)
+                query += $"&since_id={lastTweetIdSaved}";
+
+            var repliedTweets = QueryTweets(query);
+
             // filter replies, keep only direct replies to main user
             repliedTweets = repliedTweets.Where(x => x.InReplyToStatusId.HasValue && newTweetIds.Contains(x.InReplyToStatusId.Value)).ToList();
             var repliedTweetsParsed = ConvertToEntity(repliedTweets);
