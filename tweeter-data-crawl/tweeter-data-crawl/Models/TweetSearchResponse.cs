@@ -74,7 +74,7 @@ namespace tweeter_data_crawl.Models
         public string Source { get; set; }
 
         [JsonProperty("in_reply_to_status_id", NullValueHandling = NullValueHandling.Ignore)]
-        public double? InReplyToStatusId { get; set; }
+        public long? InReplyToStatusId { get; set; }
 
         [JsonProperty("in_reply_to_status_id_str", NullValueHandling = NullValueHandling.Ignore)]
         public string InReplyToStatusIdStr { get; set; }
@@ -168,7 +168,7 @@ namespace tweeter_data_crawl.Models
     public partial class User
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public double? Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("id_str", NullValueHandling = NullValueHandling.Ignore)]
         public string IdStr { get; set; }

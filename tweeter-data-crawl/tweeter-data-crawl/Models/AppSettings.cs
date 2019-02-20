@@ -4,6 +4,7 @@ namespace tweeter_data_crawl.Models
 {
     public class AppSettings
     {
+        public string MainUserName { get; set; }
         public Consumer Consumer { get; set; }
         public string AuthorizeToken { get; set; }
     }
