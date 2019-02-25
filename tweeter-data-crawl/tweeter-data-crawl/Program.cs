@@ -109,7 +109,10 @@ namespace tweeter_data_crawl
             // filter replies, keep only direct replies to main user
             repliedTweets = repliedTweets.Where(x => x.InReplyToStatusId.HasValue && newTweetIds.Contains(x.InReplyToStatusId.Value)).ToList();
             var repliedTweetsParsed = ConvertToEntity(repliedTweets);
-            dbService.AddTweets(repliedTweetsParsed);
+            var items = dbService.AddTweets(repliedTweetsParsed);
+            Console.WriteLine($"Inserted {items} items");
+
+            Console.ReadLine();
         }
     }
 }

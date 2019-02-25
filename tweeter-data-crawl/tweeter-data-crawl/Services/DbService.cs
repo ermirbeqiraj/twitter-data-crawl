@@ -8,8 +8,9 @@ namespace tweeter_data_crawl.Services
     {
         public DbService() { }
 
-        public void AddTweets(List<Tweet> items)
+        public int AddTweets(List<Tweet> items)
         {
+            var itemsAdded = 0;
             var ids = items.Select(x => x.Id).ToList();
             using (var _context = new TweeterContext())
             {
@@ -18,9 +19,11 @@ namespace tweeter_data_crawl.Services
                 if (items.Count > 0)
                 {
                     _context.Tweet.AddRange(items);
-                    _context.SaveChanges();
+                    itemsAdded = _context.SaveChanges();
                 }
             }
+
+            return itemsAdded;
         }
 
         public long[] GetTweetIds(long userId)
